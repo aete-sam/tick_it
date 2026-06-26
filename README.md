@@ -66,76 +66,26 @@ lib/
 ### Prerequisites
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or later)
-- [Firebase CLI](https://firebase.google.com/docs/cli) installed globally
-- [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/) installed:
-  ```bash
-  dart pub global activate flutterfire_cli
-  ```
 - An Android device or emulator
 
 ### Step 1: Clone the Repository
-
 ```bash
 git clone https://github.com/YOUR_USERNAME/tick_it.git
 cd tick_it
 ```
 
 ### Step 2: Install Dependencies
-
 ```bash
 flutter pub get
 ```
 
-### Step 3: Set Up Firebase
+### Step 3: Configure Firebase
+To configure Firebase Authentication and Firestore, please refer to the step-by-step [Firebase Integration Guide](./FIREBASE_GUIDE.md).
 
-1. **Create a Firebase project** at [Firebase Console](https://console.firebase.google.com/)
-
-2. **Enable Authentication providers:**
-   - Go to **Authentication → Sign-in method**
-   - Enable **Email/Password**
-   - Enable **Google** (add your SHA-1 key for Android)
-
-3. **Create Firestore Database:**
-   - Go to **Firestore Database → Create database**
-   - Start in **test mode** (for development)
-
-4. **Configure Firebase in the project:**
-   ```bash
-   flutterfire configure
-   ```
-   This generates `lib/firebase_options.dart`.
-
-5. **Update `lib/main.dart`:**
-   - Uncomment the `import 'firebase_options.dart';` line
-   - Uncomment the `Firebase.initializeApp(options: ...)` block
-   - Remove the temporary `try/catch` Firebase init block
-
-### Step 4: Add SHA-1 for Google Sign-In (Android)
-
-```bash
-cd android
-./gradlew signingReport
-```
-
-Copy the SHA-1 fingerprint and add it to your Firebase project:
-**Firebase Console → Project Settings → Your Android app → Add fingerprint**
-
-### Step 5: Run the App
-
+### Step 4: Run the App
 ```bash
 flutter run
 ```
-
-## Color Palette
-
-| Role | Color | Hex |
-|------|-------|-----|
-| Primary (Deep Teal) | 🟢 | `#0D7377` |
-| Primary Light (Aqua Mint) | 🟢 | `#14BDAC` |
-| Secondary (Warm Coral) | 🔴 | `#FF6B6B` |
-| Accent (Soft Indigo) | 🟣 | `#6C63FF` |
-| Gradient Start | 🟠 | `#FFF0E0` |
-| Gradient End | 🟣 | `#D4C4FB` |
 
 ## Roadmap
 
@@ -149,4 +99,4 @@ flutter run
 
 ## License
 
-This project is for educational purposes.
+This project is licensed under the MIT License.
