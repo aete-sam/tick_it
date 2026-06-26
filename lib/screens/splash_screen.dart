@@ -4,7 +4,6 @@ import 'package:tick_it/config/routes.dart';
 import 'package:tick_it/widgets/gradient_background.dart';
 import 'package:tick_it/services/auth_service.dart';
 
-/// Splash Screen — animated branding with gradient background
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -27,7 +26,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Logo & text fade-in
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -38,7 +36,6 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeOut,
     );
 
-    // Slide up animation
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -52,7 +49,6 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeOutCubic,
     ));
 
-    // Button fade (delayed)
     _buttonFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeController,
@@ -60,16 +56,13 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Check login status
     _isLoggedIn = _authService.isLoggedIn;
 
-    // Start animations
     Future.delayed(const Duration(milliseconds: 300), () {
       _fadeController.forward();
       _slideController.forward();
     });
 
-    // If already logged in, auto-navigate after 2 seconds
     if (_isLoggedIn) {
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
@@ -87,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateForward() {
-    // Check if user is already logged in
+
     if (_authService.isLoggedIn) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else {
@@ -111,7 +104,6 @@ class _SplashScreenState extends State<SplashScreen>
                   children: [
                     const Spacer(flex: 3),
 
-                    // Logo icon
                     Container(
                       width: 72,
                       height: 72,
@@ -135,7 +127,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 20),
 
-                    // App name
                     Text(
                       'TickIt',
                       style: AppTextStyles.heading1.copyWith(
@@ -146,7 +137,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 12),
 
-                    // Tagline
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: Text(
@@ -158,7 +148,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 48),
 
-                    // Get Started button — only shown when not logged in
                     if (!_isLoggedIn)
                       FadeTransition(
                         opacity: _buttonFadeAnimation,

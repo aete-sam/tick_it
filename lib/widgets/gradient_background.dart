@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_it/config/theme.dart';
 
-/// Reusable gradient background with organic decorative blob shapes
 class GradientBackground extends StatelessWidget {
   final Widget child;
   final bool showBlobs;
@@ -23,7 +22,7 @@ class GradientBackground extends StatelessWidget {
       child: showBlobs
           ? Stack(
               children: [
-                // Top-left blob
+
                 Positioned(
                   top: -30,
                   left: -30,
@@ -32,7 +31,7 @@ class GradientBackground extends StatelessWidget {
                     color: AppColors.primaryLight.withValues(alpha: 0.2),
                   ),
                 ),
-                // Top-right blob
+
                 Positioned(
                   top: 60,
                   right: -40,
@@ -42,7 +41,7 @@ class GradientBackground extends StatelessWidget {
                     variant: 1,
                   ),
                 ),
-                // Bottom-left blob
+
                 Positioned(
                   bottom: -20,
                   left: -20,
@@ -52,7 +51,7 @@ class GradientBackground extends StatelessWidget {
                     variant: 2,
                   ),
                 ),
-                // Bottom-right blob
+
                 Positioned(
                   bottom: 40,
                   right: -30,
@@ -62,7 +61,7 @@ class GradientBackground extends StatelessWidget {
                     variant: 3,
                   ),
                 ),
-                // Decorative line curves
+
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -72,7 +71,7 @@ class GradientBackground extends StatelessWidget {
                     painter: _CurveLinePainter(),
                   ),
                 ),
-                // Child content
+
                 child,
               ],
             )
@@ -81,7 +80,6 @@ class GradientBackground extends StatelessWidget {
   }
 }
 
-/// Organic blob shape widget
 class _BlobShape extends StatelessWidget {
   final double size;
   final Color color;
@@ -102,7 +100,6 @@ class _BlobShape extends StatelessWidget {
   }
 }
 
-/// Custom painter for organic blob shapes
 class _BlobPainter extends CustomPainter {
   final Color color;
   final int variant;
@@ -121,7 +118,7 @@ class _BlobPainter extends CustomPainter {
 
     switch (variant) {
       case 0:
-        // Rounded organic blob
+
         path.moveTo(w * 0.5, 0);
         path.cubicTo(w * 0.85, h * 0.05, w, h * 0.35, w * 0.9, h * 0.6);
         path.cubicTo(w * 0.8, h * 0.85, w * 0.5, h, w * 0.3, h * 0.9);
@@ -129,21 +126,21 @@ class _BlobPainter extends CustomPainter {
         path.cubicTo(w * 0.25, 0, w * 0.35, h * 0.02, w * 0.5, 0);
         break;
       case 1:
-        // Soft triangle-ish blob
+
         path.moveTo(w * 0.6, 0);
         path.cubicTo(w, h * 0.1, w * 0.95, h * 0.6, w * 0.7, h * 0.8);
         path.cubicTo(w * 0.5, h, w * 0.1, h * 0.8, w * 0.05, h * 0.5);
         path.cubicTo(0, h * 0.2, w * 0.3, 0, w * 0.6, 0);
         break;
       case 2:
-        // Flowing wave blob
+
         path.moveTo(0, h * 0.3);
         path.cubicTo(w * 0.2, 0, w * 0.7, h * 0.1, w, h * 0.3);
         path.cubicTo(w, h * 0.7, w * 0.8, h, w * 0.5, h);
         path.cubicTo(w * 0.2, h, 0, h * 0.7, 0, h * 0.3);
         break;
       case 3:
-        // Rounded square-ish blob
+
         path.addRRect(
           RRect.fromRectAndCorners(
             Rect.fromLTWH(0, 0, w, h),
@@ -164,7 +161,6 @@ class _BlobPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Decorative curve line at the bottom
 class _CurveLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

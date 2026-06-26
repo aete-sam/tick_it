@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Task data model for TickIt
 class TaskModel {
   final String id;
   final String title;
   final String category;
   final DateTime date;
-  final String startTime; // "08:00 AM"
-  final String endTime;   // "12:00 PM"
+  final String startTime;
+  final String endTime;
   final bool isCompleted;
   final String userId;
   final DateTime createdAt;
@@ -24,7 +23,6 @@ class TaskModel {
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  /// Create a copy with modified fields
   TaskModel copyWith({
     String? id,
     String? title,
@@ -49,7 +47,6 @@ class TaskModel {
     );
   }
 
-  /// Convert to Firestore document map
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -63,7 +60,6 @@ class TaskModel {
     };
   }
 
-  /// Create from Firestore document
   factory TaskModel.fromMap(String id, Map<String, dynamic> map) {
     return TaskModel(
       id: id,
@@ -80,7 +76,6 @@ class TaskModel {
     );
   }
 
-  /// Convert to JSON for SharedPreferences
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -95,7 +90,6 @@ class TaskModel {
     };
   }
 
-  /// Create from JSON (SharedPreferences)
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json['id'] ?? '',
@@ -112,7 +106,6 @@ class TaskModel {
     );
   }
 
-  /// Available categories
   static const List<String> categories = [
     'Project',
     'Work',

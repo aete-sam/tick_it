@@ -7,7 +7,6 @@ import 'package:tick_it/widgets/custom_text_field.dart';
 import 'package:tick_it/widgets/google_sign_in_button.dart';
 import 'package:tick_it/services/auth_service.dart';
 
-/// Login Screen — email/password + Google Sign-In
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -110,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen>
                   children: [
                     const SizedBox(height: 20),
 
-                    // TickIt branding (top-left)
                     Row(
                       children: [
                         Container(
@@ -136,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 60),
 
-                    // Welcome heading
                     Center(
                       child: Text(
                         'Welcome Back !',
@@ -146,7 +143,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 48),
 
-                    // Email field
                     CustomTextField(
                       hintText: 'Email',
                       controller: _emailController,
@@ -165,7 +161,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 18),
 
-                    // Password field
                     CustomTextField(
                       hintText: 'Password',
                       controller: _passwordController,
@@ -179,7 +174,6 @@ class _LoginScreenState extends State<LoginScreen>
                       },
                     ),
 
-                    // Error message
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 14),
                       Container(
@@ -201,7 +195,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 32),
 
-                    // Login button
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -231,7 +224,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 20),
 
-                    // Google Sign-In
                     GoogleSignInButton(
                       onPressed: _handleGoogleSignIn,
                       isLoading: _isGoogleLoading,
@@ -239,7 +231,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 28),
 
-                    // Sign up link
                     Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -271,7 +262,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 60),
 
-                    // Bottom decorative text
                     Center(
                       child: Text(
                         'Organize smarter, live better.\nPowered by TickIt.',

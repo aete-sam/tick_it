@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/models/task_model.dart';
 
-/// Individual task list item tile
 class TaskTile extends StatelessWidget {
   final TaskModel task;
   final VoidCallback? onToggleComplete;
@@ -43,7 +42,7 @@ class TaskTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         child: Row(
           children: [
-            // Checkbox circle
+
             GestureDetector(
               onTap: onToggleComplete,
               child: AnimatedContainer(
@@ -73,7 +72,6 @@ class TaskTile extends StatelessWidget {
             ),
             const SizedBox(width: 14),
 
-            // Task info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +96,6 @@ class TaskTile extends StatelessWidget {
               ),
             ),
 
-            // Edit button
             IconButton(
               onPressed: onEdit,
               icon: const Icon(Icons.edit_outlined),
@@ -108,7 +105,6 @@ class TaskTile extends StatelessWidget {
               padding: EdgeInsets.zero,
             ),
 
-            // Delete button
             IconButton(
               onPressed: onDelete,
               icon: const Icon(Icons.delete_outline_rounded),

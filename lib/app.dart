@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/config/routes.dart';
 
-/// TickIt App — Root MaterialApp widget
 class TickItApp extends StatelessWidget {
   const TickItApp({super.key});
 

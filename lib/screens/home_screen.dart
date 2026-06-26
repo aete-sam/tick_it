@@ -9,7 +9,6 @@ import 'package:tick_it/services/task_service.dart';
 import 'package:tick_it/widgets/category_card.dart';
 import 'package:tick_it/widgets/task_tile.dart';
 
-/// Home Screen — categories grid, calendar strip, today's tasks
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -91,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Handle bar
+
                 Center(
                   child: Container(
                     width: 40,
@@ -107,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen>
                 Text('New Task', style: AppTextStyles.heading3),
                 const SizedBox(height: 20),
 
-                // Task title
                 TextField(
                   controller: titleController,
                   style: AppTextStyles.bodyMedium,
@@ -125,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 16),
 
-                // Category selector
                 Text('Category', style: AppTextStyles.label),
                 const SizedBox(height: 8),
                 Wrap(
@@ -160,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 24),
 
-                // Add button
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -246,10 +242,9 @@ class _HomeScreenState extends State<HomeScreen>
           opacity: _fadeAnimation,
           child: Column(
             children: [
-              // Header
+
               _buildHeader(),
 
-              // Scrollable content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -258,17 +253,14 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       const SizedBox(height: 20),
 
-                      // Category cards grid
                       _buildCategoryGrid(userId),
 
                       const SizedBox(height: 24),
 
-                      // Calendar week strip
                       _buildCalendarStrip(),
 
                       const SizedBox(height: 20),
 
-                      // Today's Tasks header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -287,10 +279,9 @@ class _HomeScreenState extends State<HomeScreen>
 
                       const SizedBox(height: 12),
 
-                      // Task list
                       _buildTaskList(userId),
 
-                      const SizedBox(height: 100), // Bottom padding for FAB
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -300,7 +291,6 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ),
 
-      // Create new task button
       floatingActionButton: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
         width: double.infinity,
@@ -323,7 +313,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Build header with greeting and avatar
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -346,7 +335,6 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
 
-          // Avatar / Menu
           PopupMenuButton(
             offset: const Offset(0, 50),
             shape: RoundedRectangleBorder(
@@ -402,7 +390,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Build 2×2 category cards grid
   Widget _buildCategoryGrid(String userId) {
     return StreamBuilder<List<TaskModel>>(
       stream: _taskService.getAllTasks(userId),
@@ -433,7 +420,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Build horizontal calendar week strip
   Widget _buildCalendarStrip() {
     return Container(
       decoration: BoxDecoration(
@@ -516,7 +502,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Build task list for selected day
   Widget _buildTaskList(String userId) {
     if (userId.isEmpty) {
       return _buildEmptyState();
@@ -553,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen>
               task: task,
               onToggleComplete: () => _taskService.toggleComplete(task),
               onEdit: () {
-                // Edit screen will be built later
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -578,7 +563,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Empty state when no tasks
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 48),

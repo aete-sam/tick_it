@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_it/config/theme.dart';
 
-/// Styled text field with rounded borders
 class CustomTextField extends StatefulWidget {
   final String hintText;
   final String? labelText;

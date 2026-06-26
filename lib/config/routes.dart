@@ -4,7 +4,6 @@ import 'package:tick_it/screens/login_screen.dart';
 import 'package:tick_it/screens/signup_screen.dart';
 import 'package:tick_it/screens/home_screen.dart';
 
-/// Named route constants
 class AppRoutes {
   AppRoutes._();
 
@@ -14,7 +13,6 @@ class AppRoutes {
   static const String home = '/home';
 }
 
-/// Route generator
 class AppRouter {
   AppRouter._();
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_it/config/theme.dart';
 
-/// Category summary card (Project, Work, Daily Tasks, Groceries)
 class CategoryCard extends StatelessWidget {
   final String title;
   final int taskCount;
@@ -40,7 +39,7 @@ class CategoryCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Icon
+
             Container(
               width: 38,
               height: 38,
@@ -55,7 +54,7 @@ class CategoryCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            // Title
+
             Expanded(
               child: Text(
                 title,
@@ -63,7 +62,7 @@ class CategoryCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Count
+
             Text(
               '$taskCount',
               style: AppTextStyles.heading3.copyWith(fontSize: 20),
@@ -74,7 +73,6 @@ class CategoryCard extends StatelessWidget {
     );
   }
 
-  /// Factory constructors for predefined categories
   factory CategoryCard.project({required int count, VoidCallback? onTap}) {
     return CategoryCard(
       title: 'Project',

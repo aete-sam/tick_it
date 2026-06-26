@@ -1,61 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// TickIt Color Palette
 class AppColors {
   AppColors._();
 
-  // Primary
   static const Color primary = Color(0xFF0D7377);
   static const Color primaryLight = Color(0xFF14BDAC);
   static const Color primaryDark = Color(0xFF095B5E);
 
-  // Secondary
   static const Color secondary = Color(0xFFFF6B6B);
   static const Color secondaryLight = Color(0xFFFF9A9A);
 
-  // Accent
   static const Color accent = Color(0xFF6C63FF);
   static const Color accentLight = Color(0xFF9B94FF);
 
-  // Gradients
   static const Color gradientStart = Color(0xFFFFF0E0);
   static const Color gradientMiddle = Color(0xFFEDE4F7);
   static const Color gradientEnd = Color(0xFFD4C4FB);
 
-  // Surfaces
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceLight = Color(0xFFF8F9FA);
   static const Color scaffoldBg = Color(0xFFF5F5F7);
 
-  // Text
   static const Color textPrimary = Color(0xFF2D3436);
   static const Color textSecondary = Color(0xFF636E72);
   static const Color textHint = Color(0xFFB2BEC3);
 
-  // Category Card Colors
   static const Color categoryTeal = Color(0xFFE0F7FA);
   static const Color categoryPeach = Color(0xFFFFE0B2);
   static const Color categoryLavender = Color(0xFFE8EAF6);
   static const Color categoryMint = Color(0xFFE8F5E9);
 
-  // Category Icon Background Colors
   static const Color categoryTealIcon = Color(0xFF80DEEA);
   static const Color categoryPeachIcon = Color(0xFFFFCC80);
   static const Color categoryLavenderIcon = Color(0xFF9FA8DA);
   static const Color categoryMintIcon = Color(0xFFA5D6A7);
 
-  // Status
   static const Color success = Color(0xFF00B894);
   static const Color error = Color(0xFFE74C3C);
   static const Color warning = Color(0xFFFDAA3E);
 
-  // Misc
   static const Color divider = Color(0xFFE0E0E0);
   static const Color shadow = Color(0x1A000000);
   static const Color overlay = Color(0x33000000);
 
-  // Gradient definitions
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -80,13 +68,11 @@ class AppColors {
   );
 }
 
-/// TickIt Typography — Poppins
 class AppTextStyles {
   AppTextStyles._();
 
   static TextStyle get _baseStyle => GoogleFonts.poppins();
 
-  // Headings
   static TextStyle heading1 = _baseStyle.copyWith(
     fontSize: 32,
     fontWeight: FontWeight.w700,
@@ -106,7 +92,6 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  // Body
   static TextStyle bodyLarge = _baseStyle.copyWith(
     fontSize: 16,
     fontWeight: FontWeight.w500,
@@ -125,7 +110,6 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
-  // Labels
   static TextStyle label = _baseStyle.copyWith(
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -138,7 +122,6 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
-  // Buttons
   static TextStyle buttonLarge = _baseStyle.copyWith(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -151,7 +134,6 @@ class AppTextStyles {
     color: AppColors.surface,
   );
 
-  // Tagline / subtitle
   static TextStyle tagline = _baseStyle.copyWith(
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -160,7 +142,6 @@ class AppTextStyles {
     height: 1.5,
   );
 
-  // Caption
   static TextStyle caption = _baseStyle.copyWith(
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -168,7 +149,6 @@ class AppTextStyles {
   );
 }
 
-/// TickIt App Theme
 class AppTheme {
   AppTheme._();
 

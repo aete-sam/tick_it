@@ -7,7 +7,6 @@ import 'package:tick_it/widgets/custom_text_field.dart';
 import 'package:tick_it/widgets/google_sign_in_button.dart';
 import 'package:tick_it/services/auth_service.dart';
 
-/// Signup Screen — registration with username, email, password
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -115,7 +114,6 @@ class _SignupScreenState extends State<SignupScreen>
                   children: [
                     const SizedBox(height: 20),
 
-                    // TickIt branding (top-left)
                     Row(
                       children: [
                         Container(
@@ -141,7 +139,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 36),
 
-                    // Sign Up heading
                     Center(
                       child: Text(
                         'Sign Up',
@@ -151,7 +148,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 16),
 
-                    // Avatar placeholder
                     Center(
                       child: Container(
                         width: 80,
@@ -177,7 +173,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 32),
 
-                    // Username field
                     CustomTextField(
                       hintText: 'Username',
                       controller: _usernameController,
@@ -195,7 +190,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 16),
 
-                    // Email field
                     CustomTextField(
                       hintText: 'Email',
                       controller: _emailController,
@@ -214,7 +208,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 16),
 
-                    // Password field
                     CustomTextField(
                       hintText: 'Password',
                       controller: _passwordController,
@@ -233,7 +226,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 16),
 
-                    // Confirm Password field
                     CustomTextField(
                       hintText: 'Confirm Password',
                       controller: _confirmPasswordController,
@@ -250,7 +242,6 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
 
-                    // Error message
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 14),
                       Container(
@@ -272,7 +263,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 28),
 
-                    // Sign Up button
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -302,7 +292,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 18),
 
-                    // Google Sign-In
                     GoogleSignInButton(
                       onPressed: _handleGoogleSignIn,
                       isLoading: _isGoogleLoading,
@@ -310,7 +299,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 24),
 
-                    // Sign in link
                     Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -342,7 +330,6 @@ class _SignupScreenState extends State<SignupScreen>
 
                     const SizedBox(height: 40),
 
-                    // Bottom decorative text
                     Center(
                       child: Text(
                         'Join the productivity revolution.\nPowered by TickIt.',
