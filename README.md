@@ -15,9 +15,13 @@ A smart task management app built with Flutter and Firebase. Organize your life,
 - **Data Persistence** — Firebase Firestore + SharedPreferences offline caching
 - **Modern UI** — Poppins font, teal/coral/indigo palette, organic blob shapes
 
-## Screenshots
+| Splash Screen | Login Screen |
+| :---: | :---: |
+| <img src="assets/images/splash.png" width="300" alt="Splash Screen"/> | <img src="assets/images/login.png" width="300" alt="Login Screen"/> |
 
-*Coming soon*
+| Signup Screen | Home Dashboard |
+| :---: | :---: |
+| <img src="assets/images/signup.png" width="300" alt="Signup Screen"/> | <img src="assets/images/home.png" width="300" alt="Home Dashboard"/> |
 
 ## Tech Stack
 
