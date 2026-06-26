@@ -21,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _buttonFadeAnimation;
 
   final AuthService _authService = AuthService();
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
@@ -59,11 +60,23 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // Check login status
+    _isLoggedIn = _authService.isLoggedIn;
+
     // Start animations
     Future.delayed(const Duration(milliseconds: 300), () {
       _fadeController.forward();
       _slideController.forward();
     });
+
+    // If already logged in, auto-navigate after 2 seconds
+    if (_isLoggedIn) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
+      });
+    }
   }
 
   @override
@@ -145,43 +158,44 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 48),
 
-                    // Get Started button
-                    FadeTransition(
-                      opacity: _buttonFadeAnimation,
-                      child: SizedBox(
-                        width: 200,
-                        height: 52,
-                        child: OutlinedButton(
-                          onPressed: _navigateForward,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: AppColors.textPrimary,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Get started',
-                                style: AppTextStyles.buttonMedium.copyWith(
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.arrow_forward_rounded,
+                    // Get Started button — only shown when not logged in
+                    if (!_isLoggedIn)
+                      FadeTransition(
+                        opacity: _buttonFadeAnimation,
+                        child: SizedBox(
+                          width: 200,
+                          height: 52,
+                          child: OutlinedButton(
+                            onPressed: _navigateForward,
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
                                 color: AppColors.textPrimary,
-                                size: 20,
+                                width: 1.5,
                               ),
-                            ],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Get started',
+                                  style: AppTextStyles.buttonMedium.copyWith(
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: AppColors.textPrimary,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
                     const Spacer(flex: 3),
                   ],
