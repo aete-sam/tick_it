@@ -1,0 +1,184 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Firebase Authentication Service
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  /// Get current user
+  User? get currentUser => _auth.currentUser;
+
+  /// Auth state changes stream
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  /// Check if user is logged in
+  bool get isLoggedIn => _auth.currentUser != null;
+
+  /// Get stored display name
+  Future<String> getDisplayName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_display_name') ??
+        currentUser?.displayName ??
+        'User';
+  }
+
+  /// Sign in with email and password
+  Future<UserCredential> signInWithEmail(String email, String password) async {
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      // Cache display name
+      if (credential.user != null) {
+        await _cacheUserInfo(credential.user!);
+      }
+
+      return credential;
+    } on FirebaseAuthException {
+      rethrow;
+    }
+  }
+
+  /// Sign up with email and password
+  Future<UserCredential> signUpWithEmail(
+    String email,
+    String password,
+    String username,
+  ) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      // Update display name
+      await credential.user?.updateDisplayName(username);
+
+      // Store user data in Firestore
+      if (credential.user != null) {
+        await _firestore.collection('users').doc(credential.user!.uid).set({
+          'username': username,
+          'email': email.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+          'photoUrl': '',
+        });
+
+        // Cache display name
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_display_name', username);
+      }
+
+      return credential;
+    } on FirebaseAuthException {
+      rethrow;
+    }
+  }
+
+  /// Sign in with Google
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null; // User cancelled
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      // Store/update user data in Firestore
+      if (userCredential.user != null) {
+        final userDoc = _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid);
+
+        final docSnapshot = await userDoc.get();
+        if (!docSnapshot.exists) {
+          await userDoc.set({
+            'username': userCredential.user!.displayName ?? 'User',
+            'email': userCredential.user!.email ?? '',
+            'createdAt': FieldValue.serverTimestamp(),
+            'photoUrl': userCredential.user!.photoURL ?? '',
+          });
+        }
+
+        await _cacheUserInfo(userCredential.user!);
+      }
+
+      return userCredential;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Sign out
+  Future<void> signOut() async {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_display_name');
+    await prefs.remove('user_photo_url');
+  }
+
+  /// Cache user info locally
+  Future<void> _cacheUserInfo(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Try to get username from Firestore first
+    try {
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      if (doc.exists && doc.data()?['username'] != null) {
+        await prefs.setString('user_display_name', doc.data()!['username']);
+      } else {
+        await prefs.setString(
+          'user_display_name',
+          user.displayName ?? 'User',
+        );
+      }
+    } catch (_) {
+      await prefs.setString(
+        'user_display_name',
+        user.displayName ?? 'User',
+      );
+    }
+
+    if (user.photoURL != null) {
+      await prefs.setString('user_photo_url', user.photoURL!);
+    }
+  }
+
+  /// Get a user-friendly error message from FirebaseAuthException
+  static String getErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No account found with this email.';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email.';
+      case 'weak-password':
+        return 'Password is too weak. Use at least 6 characters.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Check your connection.';
+      default:
+        return e.message ?? 'An error occurred. Please try again.';
+    }
+  }
+}
