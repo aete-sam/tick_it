@@ -80,7 +80,7 @@ flutter pub get
 ```
 
 ### Step 3: Configure Firebase
-To configure Firebase Authentication and Firestore, please refer to the step-by-step [Firebase Integration Guide](./FIREBASE_GUIDE.md).
+
 
 ### Step 4: Run the App
 ```bash
