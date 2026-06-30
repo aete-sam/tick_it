@@ -40,6 +40,10 @@ class AppColors {
   static const Color error = Color(0xFFE74C3C);
   static const Color warning = Color(0xFFFDAA3E);
 
+  static const Color priorityHigh = Color(0xFFE74C3C);
+  static const Color priorityMedium = Color(0xFFFF9800);
+  static const Color priorityLow = Color(0xFFFFC107);
+
   static const Color divider = Color(0xFFE0E0E0);
   static const Color shadow = Color(0x1A000000);
   static const Color overlay = Color(0x33000000);
