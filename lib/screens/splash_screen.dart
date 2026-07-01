@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/config/routes.dart';
 import 'package:tick_it/widgets/gradient_background.dart';
-import 'package:tick_it/services/auth_service.dart';
+import 'package:tick_it/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +20,6 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _buttonFadeAnimation;
 
-  final AuthService _authService = AuthService();
   bool _isLoggedIn = false;
 
   @override
@@ -56,7 +56,8 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _isLoggedIn = _authService.isLoggedIn;
+    final authProvider = context.read<AuthProvider>();
+    _isLoggedIn = authProvider.isLoggedIn;
 
     Future.delayed(const Duration(milliseconds: 300), () {
       _fadeController.forward();
@@ -80,8 +81,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateForward() {
-
-    if (_authService.isLoggedIn) {
+    final authProvider = context.read<AuthProvider>();
+    if (authProvider.isLoggedIn) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
