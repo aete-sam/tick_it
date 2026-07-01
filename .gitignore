@@ -46,6 +46,7 @@ app.*.map.json
 /ios
 /macos
 /test
-/
+/linux
 .metadata
 /windows
+/web
