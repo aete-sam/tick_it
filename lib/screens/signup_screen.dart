@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/config/routes.dart';
-import 'package:tick_it/widgets/gradient_background.dart';
+
 import 'package:tick_it/widgets/custom_text_field.dart';
 import 'package:tick_it/widgets/google_sign_in_button.dart';
-import 'package:tick_it/services/auth_service.dart';
+import 'package:tick_it/providers/auth_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -21,11 +21,8 @@ class _SignupScreenState extends State<SignupScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authService = AuthService();
 
-  bool _isLoading = false;
   bool _isGoogleLoading = false;
-  String? _errorMessage;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
@@ -57,52 +54,38 @@ class _SignupScreenState extends State<SignupScreen>
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.signUpWithEmail(
+      _emailController.text,
+      _passwordController.text,
+      _usernameController.text.trim(),
+    );
 
-    try {
-      await _authService.signUpWithEmail(
-        _emailController.text,
-        _passwordController.text,
-        _usernameController.text.trim(),
-      );
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
-      }
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorMessage = AuthService.getErrorMessage(e));
-    } catch (e) {
-      setState(() => _errorMessage = 'An unexpected error occurred.');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isGoogleLoading = true;
-      _errorMessage = null;
-    });
+    setState(() => _isGoogleLoading = true);
 
-    try {
-      final result = await _authService.signInWithGoogle();
-      if (result != null && mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
-      }
-    } catch (e) {
-      setState(() => _errorMessage = 'Google sign-in failed. Please try again.');
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.signInWithGoogle();
+
+    if (mounted) setState(() => _isGoogleLoading = false);
+
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
     return Scaffold(
-      body: GradientBackground(
-        child: SafeArea(
+      backgroundColor: Colors.white,
+      body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
@@ -242,7 +225,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
 
-                    if (_errorMessage != null) ...[
+                    if (authProvider.errorMessage != null) ...[
                       const SizedBox(height: 14),
                       Container(
                         width: double.infinity,
@@ -252,7 +235,7 @@ class _SignupScreenState extends State<SignupScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          _errorMessage!,
+                          authProvider.errorMessage!,
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.error,
                           ),
@@ -267,14 +250,14 @@ class _SignupScreenState extends State<SignupScreen>
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleSignup,
+                        onPressed: authProvider.isLoading ? null : _handleSignup,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: _isLoading
+                        child: authProvider.isLoading
                             ? const SizedBox(
                                 width: 22,
                                 height: 22,
@@ -309,6 +292,7 @@ class _SignupScreenState extends State<SignupScreen>
                           ),
                           GestureDetector(
                             onTap: () {
+                              authProvider.clearError();
                               Navigator.pushReplacementNamed(
                                 context,
                                 AppRoutes.login,
@@ -348,7 +332,6 @@ class _SignupScreenState extends State<SignupScreen>
             ),
           ),
         ),
-      ),
     );
   }
 }
