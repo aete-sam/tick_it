@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/config/routes.dart';
 import 'package:tick_it/models/task_model.dart';
-import 'package:tick_it/services/auth_service.dart';
-import 'package:tick_it/services/task_service.dart';
+import 'package:tick_it/providers/auth_provider.dart';
+import 'package:tick_it/providers/task_provider.dart';
 import 'package:tick_it/widgets/category_card.dart';
 import 'package:tick_it/widgets/task_tile.dart';
 
@@ -18,10 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  final AuthService _authService = AuthService();
-  final TaskService _taskService = TaskService();
-
-  String _displayName = 'User';
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.week;
@@ -32,7 +29,16 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
+
+    final authProvider = context.read<AuthProvider>();
+    authProvider.loadDisplayName();
+
+    final userId = authProvider.currentUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      final taskProvider = context.read<TaskProvider>();
+      taskProvider.loadAllTasks(userId);
+      taskProvider.loadTasksByDate(userId, _selectedDay);
+    }
 
     _animController = AnimationController(
       vsync: this,
@@ -51,15 +57,8 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  Future<void> _loadUserInfo() async {
-    final name = await _authService.getDisplayName();
-    if (mounted) {
-      setState(() => _displayName = name);
-    }
-  }
-
   void _handleSignOut() async {
-    await _authService.signOut();
+    await context.read<AuthProvider>().signOut();
     if (mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
@@ -76,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _showDeleteConfirmation(TaskModel task) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Delete Task', style: AppTextStyles.heading3),
         content: Text(
@@ -85,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyles.buttonMedium.copyWith(
@@ -95,9 +94,11 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
-              await _taskService.deleteTask(
-                _authService.currentUser!.uid,
+              Navigator.pop(dialogContext);
+              final authProvider = context.read<AuthProvider>();
+              final taskProvider = context.read<TaskProvider>();
+              await taskProvider.deleteTask(
+                authProvider.currentUser!.uid,
                 task.id,
               );
             },
@@ -115,7 +116,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final userId = _authService.currentUser?.uid ?? '';
+    final authProvider = context.watch<AuthProvider>();
+    final taskProvider = context.watch<TaskProvider>();
+    final userId = authProvider.currentUser?.uid ?? '';
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
@@ -135,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       const SizedBox(height: 16),
 
-                      _buildCategoryGrid(userId),
+                      _buildCategoryGrid(),
 
                       const SizedBox(height: 20),
 
@@ -161,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                       const SizedBox(height: 12),
 
-                      _buildTaskList(userId),
+                      _buildTaskList(),
 
                       const SizedBox(height: 100),
                     ],
@@ -196,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildHeader() {
+    final authProvider = context.watch<AuthProvider>();
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: Row(
@@ -205,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hello $_displayName,',
+                  'Hello ${authProvider.displayName},',
                   style: AppTextStyles.heading3.copyWith(fontSize: 19),
                 ),
                 const SizedBox(height: 2),
@@ -272,48 +276,40 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildCategoryGrid(String userId) {
-    return StreamBuilder<List<TaskModel>>(
-      stream: _taskService.getAllTasks(userId),
-      builder: (context, snapshot) {
-        final tasks = snapshot.data ?? [];
-        final counts = <String, int>{};
-        for (final task in tasks) {
-          counts[task.category] = (counts[task.category] ?? 0) + 1;
-        }
+  Widget _buildCategoryGrid() {
+    final taskProvider = context.watch<TaskProvider>();
+    final counts = taskProvider.categoryCounts;
 
-        if (counts.isEmpty) {
-          return const SizedBox.shrink();
-        }
+    if (counts.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-        final categoryWidgets = <Widget>[];
-        if (counts.containsKey('Project')) {
-          categoryWidgets.add(CategoryCard.project(count: counts['Project']!));
-        }
-        if (counts.containsKey('Work')) {
-          categoryWidgets.add(CategoryCard.work(count: counts['Work']!));
-        }
-        if (counts.containsKey('Daily Tasks')) {
-          categoryWidgets.add(CategoryCard.dailyTasks(count: counts['Daily Tasks']!));
-        }
-        if (counts.containsKey('Groceries')) {
-          categoryWidgets.add(CategoryCard.groceries(count: counts['Groceries']!));
-        }
+    final categoryWidgets = <Widget>[];
+    if (counts.containsKey('Project')) {
+      categoryWidgets.add(CategoryCard.project(count: counts['Project']!));
+    }
+    if (counts.containsKey('Work')) {
+      categoryWidgets.add(CategoryCard.work(count: counts['Work']!));
+    }
+    if (counts.containsKey('Daily Tasks')) {
+      categoryWidgets.add(CategoryCard.dailyTasks(count: counts['Daily Tasks']!));
+    }
+    if (counts.containsKey('Groceries')) {
+      categoryWidgets.add(CategoryCard.groceries(count: counts['Groceries']!));
+    }
 
-        if (categoryWidgets.isEmpty) {
-          return const SizedBox.shrink();
-        }
+    if (categoryWidgets.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-        return GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 2.4,
-          children: categoryWidgets,
-        );
-      },
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: 2.4,
+      children: categoryWidgets,
     );
   }
 
@@ -391,6 +387,11 @@ class _HomeScreenState extends State<HomeScreen>
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
+          final authProvider = context.read<AuthProvider>();
+          final userId = authProvider.currentUser?.uid ?? '';
+          if (userId.isNotEmpty) {
+            context.read<TaskProvider>().loadTasksByDate(userId, selectedDay);
+          }
         },
         onPageChanged: (focusedDay) {
           _focusedDay = focusedDay;
@@ -399,54 +400,41 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildTaskList(String userId) {
-    if (userId.isEmpty) {
+  Widget _buildTaskList() {
+    final taskProvider = context.watch<TaskProvider>();
+
+    if (taskProvider.isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: CircularProgressIndicator(
+            color: AppColors.primary,
+            strokeWidth: 3,
+          ),
+        ),
+      );
+    }
+
+    final tasks = taskProvider.sortedTasks;
+
+    if (tasks.isEmpty) {
       return _buildEmptyState();
     }
 
-    return StreamBuilder<List<TaskModel>>(
-      stream: _taskService.getTasksByDate(userId, _selectedDay),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40),
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-                strokeWidth: 3,
-              ),
-            ),
-          );
-        }
-
-        final tasks = List<TaskModel>.from(snapshot.data ?? []);
-        tasks.sort((a, b) {
-          const priorityWeights = {'High': 0, 'Medium': 1, 'Low': 2};
-          final weightA = priorityWeights[a.priority] ?? 2;
-          final weightB = priorityWeights[b.priority] ?? 2;
-          return weightA.compareTo(weightB);
-        });
-
-        if (tasks.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: tasks.length,
-          itemBuilder: (context, index) {
-            final task = tasks[index];
-            return TaskTile(
-              task: task,
-              onToggleComplete: () => _taskService.toggleComplete(task),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.editTask,
-                  arguments: task,
-                );
-              },
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return TaskTile(
+          task: task,
+          onToggleComplete: () => taskProvider.toggleComplete(task),
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.editTask,
+              arguments: task,
             );
           },
         );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/config/routes.dart';
-import 'package:tick_it/widgets/gradient_background.dart';
 import 'package:tick_it/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -92,104 +91,79 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GradientBackground(
-        gradient: AppColors.splashGradient,
-        child: SafeArea(
-          child: Center(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(flex: 3),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 3),
 
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Image.asset(
+                      'assets/logo/Tickit-figma/name-logo-no-bg.png',
+                      width: double.infinity,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 48),
+                    child: Text(
+                      'Organize your life,\none tick at a time.',
+                      style: AppTextStyles.tagline,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  if (!_isLoggedIn)
+                    FadeTransition(
+                      opacity: _buttonFadeAnimation,
+                      child: SizedBox(
+                        width: 200,
+                        height: 52,
+                        child: OutlinedButton(
+                          onPressed: _navigateForward,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: AppColors.textPrimary,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: AppColors.surface,
-                        size: 40,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Text(
-                      'TickIt',
-                      style: AppTextStyles.heading1.copyWith(
-                        fontSize: 38,
-                        letterSpacing: 1,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 48),
-                      child: Text(
-                        'Organize your life,\none tick at a time.',
-                        style: AppTextStyles.tagline,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    const SizedBox(height: 48),
-
-                    if (!_isLoggedIn)
-                      FadeTransition(
-                        opacity: _buttonFadeAnimation,
-                        child: SizedBox(
-                          width: 200,
-                          height: 52,
-                          child: OutlinedButton(
-                            onPressed: _navigateForward,
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: AppColors.textPrimary,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Get started',
-                                  style: AppTextStyles.buttonMedium.copyWith(
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.arrow_forward_rounded,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Get started',
+                                style: AppTextStyles.buttonMedium.copyWith(
                                   color: AppColors.textPrimary,
-                                  size: 20,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.arrow_forward_rounded,
+                                color: AppColors.textPrimary,
+                                size: 20,
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    ),
 
-                    const Spacer(flex: 3),
-                  ],
-                ),
+                  const Spacer(flex: 3),
+                ],
               ),
             ),
           ),
