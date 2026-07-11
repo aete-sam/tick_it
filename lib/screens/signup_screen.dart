@@ -111,31 +111,6 @@ class _SignupScreenState extends State<SignupScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-
-                    Center(
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.gradientMiddle,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.accent.withValues(alpha: 0.2),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          color: AppColors.textSecondary,
-                          size: 42,
-                        ),
-                      ),
-                    ),
-
                     const SizedBox(height: 32),
 
                     CustomTextField(

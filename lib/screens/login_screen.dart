@@ -169,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: ElevatedButton(
                       onPressed: authProvider.isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.textPrimary,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),

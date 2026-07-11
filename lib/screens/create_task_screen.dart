@@ -70,7 +70,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.secondary,
+              primary: AppColors.primary,
               onPrimary: AppColors.surface,
               surface: AppColors.surface,
             ),
@@ -257,7 +257,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
@@ -276,10 +276,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.secondary : AppColors.surface,
+              color: isSelected ? AppColors.primary : AppColors.surface,
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: isSelected ? AppColors.secondary : AppColors.divider,
+                color: isSelected ? AppColors.primary : AppColors.divider,
               ),
             ),
             child: Text(
@@ -315,7 +315,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             const Icon(
               Icons.calendar_today_rounded,
-              color: AppColors.secondary,
+              color: AppColors.primary,
               size: 20,
             ),
           ],
@@ -368,7 +368,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.secondary),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
           style: AppTextStyles.bodyMedium,
           items: _timeSlots.map((time) {
             return DropdownMenuItem(value: time, child: Text(time));
@@ -395,7 +395,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             chipColor = AppColors.priorityMedium;
             break;
           default:
-            chipColor = AppColors.secondary;
+            chipColor = AppColors.primary;
         }
 
         return GestureDetector(
@@ -443,7 +443,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(18),
       ),
@@ -457,7 +457,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleCreate,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondary,
+          backgroundColor: AppColors.primary,
           foregroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),

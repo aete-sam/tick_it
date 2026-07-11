@@ -1,102 +1,65 @@
-# TickIt — Task Management App
+# TickIt - Task Management App
 
-A smart task management app built with Flutter and Firebase. Organize your life, one tick at a time.
+TickIt is a beautifully designed, feature-rich task management application built in Flutter as part of the Developer's Hub Co. Internship (Cycle 2, Weeks 4-6). It integrates modern UI aesthetics, real-time cloud data, and robust state management.
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)
-![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)
-![License](https://img.shields.io/badge/License-MIT-green)
+## 📸 Screenshots
+<p align="center">
+  <img src="assets/images/splash.jpeg" width="200" />
+  <img src="assets/images/Login.jpeg" width="200" />
+  <img src="assets/images/signup.jpeg" width="200" />
+</p>
+<p align="center">
+  <img src="assets/images/home.jpeg" width="200" />
+  <img src="assets/images/schedule.jpeg" width="200" />
+  <img src="assets/images/profile.jpeg" width="200" />
+</p>
 
-## Features
+---
 
-- **Splash Screen** — Animated branding with gradient background
-- **Authentication** — Email/password login & signup + Google Sign-In
-- **Home Dashboard** — Category cards, weekly calendar strip, today's tasks
-- **Task Management** — Add, delete, mark complete with real-time updates
-- **Data Persistence** — Firebase Firestore + SharedPreferences offline caching
-- **Modern UI** — Poppins font, teal/coral/indigo palette, organic blob shapes
+## 🎯 Features & Deliverables
 
-| Splash Screen | Login Screen |
-| :---: | :---: |
-| <img src="assets/images/splash.png" width="300" alt="Splash Screen"/> | <img src="assets/images/login.png" width="300" alt="Login Screen"/> |
+### 1. API Integration & Networking
+- **Daily Quotes**: Fetches daily motivational quotes from a public API instead of generic user data.
+- **Robust Parsing**: Safely parses JSON responses and displays them on the Home Screen.
+- **Error Handling**: Implements UI loading spinners and handles failed API requests gracefully.
 
-| Signup Screen | Home Dashboard |
-| :---: | :---: |
-| <img src="assets/images/signup.png" width="300" alt="Signup Screen"/> | <img src="assets/images/home.png" width="300" alt="Home Dashboard"/> |
+### 2. Firebase Authentication & Database
+- **Secure Authentication**: Full login and signup flows powered by Firebase Authentication (Email/Password & Google Sign-In).
+- **Cloud Firestore**: Stores and retrieves user data (name, email) and all scheduled tasks in real-time.
+- **User Profiles**: Displays user details securely fetched from the Firestore database.
 
-## Tech Stack
+### 3. State Management & Enhancements
+- **Provider Pattern**: Refactored entirely to use the `provider` package instead of `setState` for robust app state management.
+- **Real-time UI**: Task additions, edits, and deletions update the UI instantaneously via Provider.
+- **UI/UX Optimizations**: Features modern glassmorphism, subtle micro-animations, and performant layouts.
+- **Bonus Feature (FCM)**: Successfully integrated Firebase Cloud Messaging for robust, targeted push notifications!
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Flutter (Dart) |
-| Auth | Firebase Authentication |
-| Database | Cloud Firestore |
-| Local Cache | SharedPreferences |
-| Calendar | table_calendar |
-| Fonts | Google Fonts (Poppins) |
+---
 
-## Project Structure
+## 🚀 Setup Instructions
 
-```
-lib/
-├── main.dart                    # App entry point with Firebase init
-├── app.dart                     # MaterialApp configuration
-├── config/
-│   ├── theme.dart               # Colors, typography, theme
-│   └── routes.dart              # Named route definitions
-├── models/
-│   └── task_model.dart          # Task data model
-├── services/
-│   ├── auth_service.dart        # Firebase Auth wrapper
-│   └── task_service.dart        # Firestore CRUD + caching
-├── screens/
-│   ├── splash_screen.dart       # Animated splash
-│   ├── login_screen.dart        # Login with email + Google
-│   ├── signup_screen.dart       # Registration form
-│   └── home_screen.dart         # Dashboard with tasks
-└── widgets/
-    ├── gradient_background.dart # Reusable gradient + blobs
-    ├── custom_text_field.dart   # Styled input field
-    ├── category_card.dart       # Category summary card
-    ├── task_tile.dart           # Task list item
-    └── google_sign_in_button.dart
-```
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd tick_it
+   ```
 
-## Setup Instructions
+2. **Install Dependencies:**
+   ```bash
+   flutter pub get
+   ```
 
-### Prerequisites
+3. **Firebase Setup:**
+   Ensure your Firebase project is configured for Android/iOS. Download the corresponding `google-services.json` and `GoogleService-Info.plist` and place them in their respective native directories. (Currently configured via `flutterfire configure`).
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or later)
-- An Android device or emulator
+4. **Run the App:**
+   ```bash
+   flutter run
+   ```
 
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/tick_it.git
-cd tick_it
-```
-
-### Step 2: Install Dependencies
-```bash
-flutter pub get
-```
-
-### Step 3: Configure Firebase
-
-
-### Step 4: Run the App
-```bash
-flutter run
-```
-
-## Roadmap
-
-- [x] Splash screen
-- [x] Login / Signup with Firebase Auth
-- [x] Home screen with categories + calendar
-- [ ] Create / Edit task screen
-- [ ] Full monthly calendar view
-- [ ] Firebase Cloud Messaging (push notifications)
-- [ ] Dark mode
-
-## License
-
-This project is licensed under the MIT License.
+## 🛠 Tech Stack
+- **Framework**: Flutter
+- **State Management**: Provider
+- **Backend/Auth**: Firebase & Cloud Firestore
+- **Networking**: `http` package
+- **Notifications**: Firebase Cloud Messaging (`firebase_messaging`)

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tick_it/services/notification_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -57,6 +58,7 @@ class AuthService {
           'email': email.trim(),
           'createdAt': FieldValue.serverTimestamp(),
           'photoUrl': '',
+          'fcmToken': NotificationService().currentToken,
         });
 
         final prefs = await SharedPreferences.getInstance();
@@ -137,6 +139,18 @@ class AuthService {
         'user_display_name',
         user.displayName ?? 'User',
       );
+    }
+
+    // Save current FCM token to Firestore
+    final token = NotificationService().currentToken;
+    if (token != null) {
+      try {
+        await _firestore.collection('users').doc(user.uid).update({
+          'fcmToken': token,
+        });
+      } catch (e) {
+        // Doc might not exist yet, but signUp handles it separately
+      }
     }
 
     if (user.photoURL != null) {
