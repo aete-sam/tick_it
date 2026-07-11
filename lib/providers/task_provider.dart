@@ -66,7 +66,7 @@ class TaskProvider extends ChangeNotifier {
         notifyListeners();
       },
       onError: (e) {
-        debugPrint('Failed to load all tasks: $e');
+        _errorMessage = 'Failed to load all tasks.';
       },
     );
   }

@@ -23,12 +23,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase not configured yet: $e');
-    debugPrint('Run `flutterfire configure` to set up Firebase.');
-  }
+
 
   runApp(const TickItApp());
 }
