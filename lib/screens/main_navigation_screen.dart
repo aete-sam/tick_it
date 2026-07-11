@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hydro_glass_nav_bar/hydro_glass_nav_bar.dart';
 import 'package:tick_it/config/routes.dart';
 import 'package:tick_it/screens/calendar_screen.dart';
 import 'package:tick_it/screens/home_screen.dart';
@@ -13,80 +12,58 @@ class MainNavigationScreen extends StatefulWidget {
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    CalendarScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
-      body: Stack(
-        children: [
-          TabBarView(
-            controller: _tabController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: const [
-              HomeScreen(),
-              CalendarScreen(),
-              ProfileScreen(),
-            ],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        backgroundColor: AppColors.surface,
+        indicatorColor: AppColors.primaryLight.withValues(alpha: 0.3),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
+            label: 'Home',
           ),
-          
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: HydroGlassNavBar(
-              controller: _tabController,
-              indicatorColor: AppColors.primary,
-              items: [
-                HydroGlassNavItem(
-                  label: 'Home',
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home_rounded,
-                  glowColor: AppColors.primary,
-                ),
-                HydroGlassNavItem(
-                  label: 'Calendar',
-                  icon: Icons.calendar_month_outlined,
-                  selectedIcon: Icons.calendar_month_rounded,
-                  glowColor: AppColors.secondary,
-                ),
-                HydroGlassNavItem(
-                  label: 'Profile',
-                  icon: Icons.person_outline_rounded,
-                  selectedIcon: Icons.person_rounded,
-                  glowColor: AppColors.accent,
-                ),
-              ],
-              fabConfig: HydroGlassNavBarFABConfig(
-                icon: Icons.add_rounded,
-                size: 56,
-                actions: [
-                  HydroGlassNavBarAction(
-                    icon: Icons.edit_document,
-                    label: 'Create Task',
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.createTask);
-                    },
-                  ),
-                ],
-              ),
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month_rounded, color: AppColors.primary),
+            label: 'Calendar',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
+            label: 'Profile',
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.createTask);
+        },
+        backgroundColor: AppColors.secondary,
+        elevation: 4,
+        child: const Icon(Icons.add_rounded, color: AppColors.surface, size: 28),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
