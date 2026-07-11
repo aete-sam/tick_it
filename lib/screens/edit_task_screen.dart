@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/models/task_model.dart';
-import 'package:tick_it/services/task_service.dart';
-import 'package:tick_it/widgets/gradient_background.dart';
+import 'package:tick_it/providers/task_provider.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final TaskModel task;
@@ -15,7 +15,6 @@ class EditTaskScreen extends StatefulWidget {
 }
 
 class _EditTaskScreenState extends State<EditTaskScreen> {
-  final TaskService _taskService = TaskService();
 
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
@@ -76,7 +75,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.accent,
+              primary: AppColors.secondary,
               onPrimary: AppColors.surface,
               surface: AppColors.surface,
             ),
@@ -119,15 +118,36 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         description: _descriptionController.text.trim(),
       );
 
-      await _taskService.updateTask(updatedTask);
-      if (mounted) Navigator.pop(context);
+      final taskProvider = context.read<TaskProvider>();
+      final success = await taskProvider.updateTask(updatedTask);
+      if (success) {
+        if (mounted) Navigator.pop(context);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                taskProvider.errorMessage ?? 'Failed to update task.',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.surface),
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update task: $e'),
+            content: Text(
+              'Failed to update task: $e',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.surface),
+            ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -139,13 +159,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GradientBackground(
-        gradient: AppColors.backgroundGradient,
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAppBar(),
-              Expanded(
+      backgroundColor: AppColors.scaffoldBg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildAppBar(),
+            Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -186,8 +205,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                       const SizedBox(height: 32),
                       _buildSaveButton(),
-                      const SizedBox(height: 16),
-                      _buildDeleteButton(),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -196,7 +213,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -217,9 +233,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
           ),
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu_rounded),
-            color: AppColors.textPrimary,
+            onPressed: _handleDelete,
+            icon: const Icon(Icons.delete_outline_rounded),
+            color: AppColors.error,
           ),
         ],
       ),
@@ -244,7 +260,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
@@ -263,10 +279,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.accent : AppColors.surface,
+              color: isSelected ? AppColors.secondary : AppColors.surface,
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: isSelected ? AppColors.accent : AppColors.divider,
+                color: isSelected ? AppColors.secondary : AppColors.divider,
               ),
             ),
             child: Text(
@@ -302,7 +318,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
             const Icon(
               Icons.calendar_today_rounded,
-              color: AppColors.accent,
+              color: AppColors.secondary,
               size: 20,
             ),
           ],
@@ -355,7 +371,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.accent),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.secondary),
           style: AppTextStyles.bodyMedium,
           items: _timeSlots.map((time) {
             return DropdownMenuItem(value: time, child: Text(time));
@@ -382,7 +398,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             chipColor = AppColors.priorityMedium;
             break;
           default:
-            chipColor = AppColors.accent;
+            chipColor = AppColors.secondary;
         }
 
         return GestureDetector(
@@ -430,7 +446,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(18),
       ),
@@ -444,7 +460,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleSave,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accent,
+          backgroundColor: AppColors.secondary,
           foregroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -471,7 +487,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   void _handleDelete() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Delete Task', style: AppTextStyles.heading3),
         content: Text(
@@ -480,7 +496,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyles.buttonMedium.copyWith(
@@ -490,12 +506,29 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
-              await _taskService.deleteTask(
+              Navigator.pop(dialogContext); // close dialog
+              final taskProvider = context.read<TaskProvider>();
+              final success = await taskProvider.deleteTask(
                 widget.task.userId,
                 widget.task.id,
               );
-              if (mounted) Navigator.pop(context);
+              if (success) {
+                if (mounted) Navigator.pop(context); // pop screen
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        taskProvider.errorMessage ?? 'Failed to delete task.',
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.surface),
+                      ),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  );
+                }
+              }
             },
             child: Text(
               'Delete',
@@ -509,28 +542,5 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     );
   }
 
-  Widget _buildDeleteButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: OutlinedButton.icon(
-        onPressed: _handleDelete,
-        icon: const Icon(Icons.delete_outline_rounded, size: 20),
-        label: Text(
-          'Delete task',
-          style: AppTextStyles.buttonLarge.copyWith(
-            color: AppColors.error,
-            fontSize: 17,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.error,
-          side: const BorderSide(color: AppColors.error, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-      ),
-    );
-  }
+
 }

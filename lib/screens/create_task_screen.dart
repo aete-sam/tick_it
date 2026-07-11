@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tick_it/config/theme.dart';
 import 'package:tick_it/models/task_model.dart';
-import 'package:tick_it/services/auth_service.dart';
-import 'package:tick_it/services/task_service.dart';
-import 'package:tick_it/widgets/gradient_background.dart';
+import 'package:tick_it/providers/auth_provider.dart';
+import 'package:tick_it/providers/task_provider.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   final DateTime? initialDate;
@@ -16,8 +16,6 @@ class CreateTaskScreen extends StatefulWidget {
 }
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
-  final AuthService _authService = AuthService();
-  final TaskService _taskService = TaskService();
 
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -72,7 +70,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.accent,
+              primary: AppColors.secondary,
               onPrimary: AppColors.surface,
               surface: AppColors.surface,
             ),
@@ -102,7 +100,9 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       return;
     }
 
-    final userId = _authService.currentUser?.uid;
+    final authProvider = context.read<AuthProvider>();
+    final taskProvider = context.read<TaskProvider>();
+    final userId = authProvider.currentUser?.uid;
     if (userId == null) return;
 
     setState(() => _isLoading = true);
@@ -120,15 +120,35 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         userId: userId,
       );
 
-      await _taskService.addTask(task);
-      if (mounted) Navigator.pop(context);
+      final success = await taskProvider.addTask(task);
+      if (success) {
+        if (mounted) Navigator.pop(context);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                taskProvider.errorMessage ?? 'Failed to create task.',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.surface),
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to create task: $e'),
+            content: Text(
+              'Failed to create task: $e',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.surface),
+            ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -140,13 +160,12 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GradientBackground(
-        gradient: AppColors.backgroundGradient,
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAppBar(),
-              Expanded(
+      backgroundColor: AppColors.scaffoldBg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildAppBar(),
+            Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -195,7 +214,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -215,11 +233,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               style: AppTextStyles.heading3.copyWith(fontSize: 20),
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu_rounded),
-            color: AppColors.textPrimary,
-          ),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -243,7 +257,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
@@ -262,10 +276,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.accent : AppColors.surface,
+              color: isSelected ? AppColors.secondary : AppColors.surface,
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: isSelected ? AppColors.accent : AppColors.divider,
+                color: isSelected ? AppColors.secondary : AppColors.divider,
               ),
             ),
             child: Text(
@@ -301,7 +315,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             const Icon(
               Icons.calendar_today_rounded,
-              color: AppColors.accent,
+              color: AppColors.secondary,
               size: 20,
             ),
           ],
@@ -354,7 +368,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.accent),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.secondary),
           style: AppTextStyles.bodyMedium,
           items: _timeSlots.map((time) {
             return DropdownMenuItem(value: time, child: Text(time));
@@ -381,7 +395,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             chipColor = AppColors.priorityMedium;
             break;
           default:
-            chipColor = AppColors.accent;
+            chipColor = AppColors.secondary;
         }
 
         return GestureDetector(
@@ -429,7 +443,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(18),
       ),
@@ -443,7 +457,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleCreate,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accent,
+          backgroundColor: AppColors.secondary,
           foregroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),

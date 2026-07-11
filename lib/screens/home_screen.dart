@@ -9,6 +9,8 @@ import 'package:tick_it/providers/auth_provider.dart';
 import 'package:tick_it/providers/task_provider.dart';
 import 'package:tick_it/widgets/category_card.dart';
 import 'package:tick_it/widgets/task_tile.dart';
+import 'package:tick_it/models/quote_model.dart';
+import 'package:tick_it/services/api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,13 +20,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.week;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
+  
+  Future<QuoteModel>? _quoteFuture;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -37,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen>
     if (userId.isNotEmpty) {
       final taskProvider = context.read<TaskProvider>();
       taskProvider.loadAllTasks(userId);
-      taskProvider.loadTasksByDate(userId, _selectedDay);
     }
 
     _animController = AnimationController(
@@ -49,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen>
       curve: Curves.easeOut,
     );
     _animController.forward();
+    _loadQuote();
   }
 
   @override
@@ -116,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final authProvider = context.watch<AuthProvider>();
     final taskProvider = context.watch<TaskProvider>();
     final userId = authProvider.currentUser?.uid ?? '';
@@ -137,36 +146,15 @@ class _HomeScreenState extends State<HomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-
-                      _buildCategoryGrid(),
-
-                      const SizedBox(height: 20),
-
-                      _buildCalendarStrip(),
-
-                      const SizedBox(height: 16),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _isToday(_selectedDay)
-                                ? "Today's Tasks"
-                                : 'Tasks for ${DateFormat('MMM d').format(_selectedDay)}',
-                            style: AppTextStyles.label.copyWith(fontSize: 14),
-                          ),
-                          Text(
-                            DateFormat('EEEE').format(_selectedDay),
-                            style: AppTextStyles.bodySmall,
-                          ),
-                        ],
+                      _buildQuoteCard(),
+                      const SizedBox(height: 24),
+                      Text(
+                        "All Tasks",
+                        style: AppTextStyles.label.copyWith(fontSize: 16),
                       ),
-
-                      const SizedBox(height: 12),
-
+                      const SizedBox(height: 16),
                       _buildTaskList(),
-
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 100), // padding for navbar
                     ],
                   ),
                 ),
@@ -175,26 +163,6 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       ),
-
-      floatingActionButton: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        width: double.infinity,
-        height: 48,
-        child: FloatingActionButton.extended(
-          onPressed: _navigateToCreateTask,
-          backgroundColor: AppColors.secondary,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          icon: const Icon(Icons.add_rounded, color: AppColors.surface),
-          label: Text(
-            'Create new task',
-            style: AppTextStyles.buttonMedium.copyWith(color: AppColors.surface),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -214,61 +182,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'You have work today',
+                  'Here is your overview',
                   style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                 ),
               ],
-            ),
-          ),
-
-          PopupMenuButton(
-            offset: const Offset(0, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.person_outline_rounded, size: 20),
-                    const SizedBox(width: 10),
-                    Text('Profile', style: AppTextStyles.bodyMedium),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                onTap: _handleSignOut,
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout_rounded,
-                        size: 20, color: AppColors.error),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Sign Out',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.error,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.primaryLight.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              child: const Icon(
-                Icons.person_rounded,
-                color: AppColors.primary,
-                size: 22,
-              ),
             ),
           ),
         ],
@@ -404,73 +321,62 @@ class _HomeScreenState extends State<HomeScreen>
     final taskProvider = context.watch<TaskProvider>();
 
     if (taskProvider.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(
-            color: AppColors.primary,
-            strokeWidth: 3,
+      return const Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    final tasks = taskProvider.allTasks;
+
+    if (tasks.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.assignment_turned_in_rounded,
+                size: 64,
+                color: AppColors.textHint.withValues(alpha: 0.3),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No tasks yet',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.textHint,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Tap + to create one!',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textHint,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
 
-    final tasks = taskProvider.sortedTasks;
-
-    if (tasks.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return ListView.builder(
+    return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: tasks.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final task = tasks[index];
         return TaskTile(
           task: task,
-          onToggleComplete: () => taskProvider.toggleComplete(task),
           onTap: () {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.editTask,
-              arguments: task,
-            );
+            Navigator.pushNamed(context, AppRoutes.editTask, arguments: task);
           },
+          onToggleComplete: () => taskProvider.toggleComplete(task),
         );
       },
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.task_alt_rounded,
-            size: 64,
-            color: AppColors.textHint.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No tasks for this day',
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textHint,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Tap the button below to add one!',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textHint,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -479,5 +385,97 @@ class _HomeScreenState extends State<HomeScreen>
     return date.year == now.year &&
         date.month == now.month &&
         date.day == now.day;
+  }
+
+  void _loadQuote() {
+    setState(() {
+      _quoteFuture = _apiService.fetchRandomQuote();
+    });
+  }
+
+  Widget _buildQuoteCard() {
+    return FutureBuilder<QuoteModel>(
+      future: _quoteFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: AppColors.error),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Failed to load quote',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _loadQuote,
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (snapshot.hasData) {
+          final quote = snapshot.data!;
+          return Card(
+            color: AppColors.primaryLight.withValues(alpha: 0.1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.format_quote_rounded, color: AppColors.primary, size: 28),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '"${quote.quote}"',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: _loadQuote,
+                        icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      '- ${quote.author}',
+                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.primaryDark),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
   }
 }

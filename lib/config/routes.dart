@@ -6,6 +6,8 @@ import 'package:tick_it/screens/signup_screen.dart';
 import 'package:tick_it/screens/home_screen.dart';
 import 'package:tick_it/screens/create_task_screen.dart';
 import 'package:tick_it/screens/edit_task_screen.dart';
+import 'package:tick_it/screens/profile_screen.dart';
+import 'package:tick_it/screens/main_navigation_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -16,6 +18,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String createTask = '/create-task';
   static const String editTask = '/edit-task';
+  static const String profile = '/profile';
 }
 
 class AppRouter {
@@ -30,13 +33,15 @@ class AppRouter {
       case AppRoutes.signup:
         return _buildPageRoute(const SignupScreen(), settings);
       case AppRoutes.home:
-        return _buildPageRoute(const HomeScreen(), settings);
+        return _buildPageRoute(const MainNavigationScreen(), settings);
       case AppRoutes.createTask:
         final date = settings.arguments as DateTime?;
         return _buildPageRoute(CreateTaskScreen(initialDate: date), settings);
       case AppRoutes.editTask:
         final task = settings.arguments as TaskModel;
         return _buildPageRoute(EditTaskScreen(task: task), settings);
+      case AppRoutes.profile:
+        return _buildPageRoute(const ProfileScreen(), settings);
       default:
         return _buildPageRoute(const SplashScreen(), settings);
     }
