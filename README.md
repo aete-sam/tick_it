@@ -9,7 +9,7 @@ TickIt is a beautifully designed, feature-rich task management application built
   <img src="assets/images/signup.jpeg" width="200" />
 </p>
 <p align="center">
-  <img src="assets/images/home.jpeg" width="200" />
+  <img src="assets/images/home.jpeg" width="201" />
   <img src="assets/images/schedule.jpeg" width="200" />
   <img src="assets/images/profile.jpeg" width="200" />
 </p>
